@@ -1,0 +1,44 @@
+plugins {
+    id "java"
+    id "idea"
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+}
+
+def buildNumber = System.env.BUILD_NUMBER ?: "SNAPSHOT"
+
+group = "sr.will"
+version = "1.0-" + buildNumber
+description = "A OCR program that records values"
+
+repositories {
+    mavenCentral()
+
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+}
+
+dependencies {
+    implementation 'org.slf4j:slf4j-api:2.0.5'
+    implementation 'org.slf4j:slf4j-log4j12:2.0.5'
+    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    implementation 'net.sourceforge.tess4j:tess4j:5.6.0'
+}
+
+shadowJar {
+    manifest {
+        attributes "Main-Class": "sr.will.multiocrrecorder.Main"
+    }
+
+    archiveClassifier.set("")
+}
+
+build {
+    dependsOn clean
+    dependsOn jar
+    dependsOn shadowJar
+
+    jar.mustRunAfter clean
+    shadowJar.mustRunAfter jar
+}
